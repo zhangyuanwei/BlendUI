@@ -1,4 +1,4 @@
- /**
+/**
  * @file Layer.js
  * @path hybrid/Layer.js
  * @extends Control
@@ -6,37 +6,36 @@
  * @author clouda-team(https://github.com/clouda-team)
  */
 define(
-    function(require) {
+    function (require) {
         var blend = require('./blend');
         var lib = require('../common/lib');
         var runtime = require('./runtime');
         var Control = require('./Control');
         var layerApi = runtime.layer;
         // var __time = 0;
-        var getBasePath = function(link) {
+        var getBasePath = function (link) {
             var a = document.createElement('a');
             a.href = link;
             return a.href;
         };
         // 注册全局layer事件
-        blend.ready(function() {
+        blend.ready(function () {
             // layer注册事件
             try {
                 // 如是runtime环境，调用runtime接口 需要删除启动画面
                 // window.nuwa_runtime && nuwa_runtime.removeSplashScreen();
-                layerApi.on('in', function(event) {
+                layerApi.on('in', function (event) {
                     var layer = blend.get(event.data);
                     if (layer && layer.onshow) {
                         layer.onshow();
                     }
                 });
 
-                layerApi.on('replace', function(event) {
+                layerApi.on('replace', function (event) {
                     var url = event.data;
                     location.replace(url);
                 });
-            }
-            catch (e) {
+            } catch (e) {
                 console.log(e.message);
             }
         });
@@ -73,7 +72,7 @@ define(
          * @param {Function} [options.ptrFn] 下拉刷新回调@todo
          * @return {Layer} this
          */
-        var Layer = function(options) {
+        var Layer = function (options) {
             options = options || {};
             if (options.url) {
                 options.url = getBasePath(options.url);
@@ -95,7 +94,7 @@ define(
          * @param {Object} options 创建layer的初始化参数
          * @return {Layer} layer实例
          */
-        Layer.prototype._init = function(options) {
+        Layer.prototype._init = function (options) {
             var me = this;
             // 处理options值;
             if (!(options.url || options.dom)) {
@@ -150,7 +149,7 @@ define(
          * 事件初始化
          * @return {Layer} this
          */
-        Layer.prototype._initEvent = function() {
+        Layer.prototype._initEvent = function () {
             var me = this;
             var cancelTime = null;
 
@@ -159,18 +158,18 @@ define(
             }*/
             // 下拉刷新回调，建议在相应的document里面触发
             if (me.ptrFn) {
-                layerApi.on('layerPullDown', function(event) {
+                layerApi.on('layerPullDown', function (event) {
                     me.ptrFn.apply(me, arguments);
                 }, me.id, me);
             }
-            layerApi.on('layerCreateSuccess', function(event) {
+            layerApi.on('layerCreateSuccess', function (event) {
                 if (me.autoStopLoading) {
-                    cancelTime = setTimeout(function() {
+                    cancelTime = setTimeout(function () {
                         me.stopLoading();
                     }, me.maxLoadingTime);
                 }
 
-                blend.ready(function(e) {
+                blend.ready(function (e) {
                     me.pullToRefresh && layerApi.setPullRefresh(me.id, true, {
                         'pullText': me.pullText,
                         'loadingText': me.loadingText,
@@ -183,9 +182,9 @@ define(
                 // console.info('Time layerCreateSuccess:' + (new Date() - __time));
                 me.afterrender && me.afterrender.apply(me, arguments);
             }, me.id, me);
-            layerApi.on('layerLoadFinish', function(event) {
+            layerApi.on('layerLoadFinish', function (event) {
                 if (!me.autoStopLoading) {
-                    cancelTime = setTimeout(function() {
+                    cancelTime = setTimeout(function () {
                         me.stopLoading();
                     }, me.maxLoadingTime);
                 }
@@ -200,13 +199,13 @@ define(
                 me.onload && me.onload.apply(me, arguments);
             }, me.id, me);
 
-            layerApi.on('layerPoped', function(event) {
+            layerApi.on('layerPoped', function (event) {
                 me.onhide && me.onhide.apply(me, arguments);
                 layerApi.fire('out', false, me.id);
             }, me.id, me);
 
             // 销毁之后撤销绑定
-            me.on('afterdistory', function() {
+            me.on('afterdistory', function () {
                 clearTimeout(cancelTime);
                 me.ptrFn && layerApi.off('layerPullDown', 'all', me.id, me);
                 layerApi.off('layerCreateSuccess', 'all', me.id, me);
@@ -220,9 +219,13 @@ define(
          * 创建渲染页面
          * @return {Object} this 当前实例
          */
-        Layer.prototype.paint = function() {
+        Layer.prototype.paint = function () {
             var me = this;
             layerApi.prepare(me.id, {
+                'titleString': me.titleString,
+                'titleBackgroundColor': me.titleBackgroundColor,
+                'titleForegroundColor': me.titleForegroundColor,
+                'parent': me.parent,
                 'url': me.url,
                 'dom': me.dom,
                 'backgroundColor': me.backgroundColor,
@@ -239,13 +242,13 @@ define(
          * 激活页面
          * @return {Object} this 当前实例
          */
-        Layer.prototype. in = function() {
+        Layer.prototype.in = function () {
             var me = this;
             // 检查当前layer是否已经销毁
             if (!layerApi.isAvailable(this.id)) {
                 me.render();
             }
-            Control.prototype. in .apply(me, arguments);
+            Control.prototype.in.apply(me, arguments);
             layerApi.resume(me.id, {
                 reverse: me.reverse,
                 fx: me.fx,
@@ -264,12 +267,11 @@ define(
          * @param {string} [toLayerId] 退场后返回的layerId
          * @return {Object} this 当前实例
          */
-        Layer.prototype.out = function(toLayerId) {
+        Layer.prototype.out = function (toLayerId) {
             Control.prototype.out.apply(this, arguments);
             if (this.subLayer) {
                 layerApi.hideSubLayer(this.id);
-            }
-            else {
+            } else {
                 layerApi.back(toLayerId);
             }
             return this;
@@ -280,7 +282,7 @@ define(
          * @param {string} url 刷新页面时所用的url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.reload = function(url) {
+        Layer.prototype.reload = function (url) {
             if (url) {
                 url = getBasePath(url);
                 if (url !== this.url) {
@@ -296,7 +298,7 @@ define(
          * @param {string} url 刷新页面时所用的url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.replace = function(url) {
+        Layer.prototype.replace = function (url) {
             url = url ? getBasePath(url) : this.url;
             layerApi.replaceUrl(this.id, url);
             return this;
@@ -307,7 +309,7 @@ define(
          *
          * @return {Object} this 当前实例
          */
-        Layer.prototype.stopPullRefresh = function() {
+        Layer.prototype.stopPullRefresh = function () {
             layerApi.stopPullRefresh(this.id);
             return this;
         };
@@ -316,7 +318,7 @@ define(
          * 停止loading状态
          * @return {Object} this 当前实例
          */
-        Layer.prototype.stopLoading = function() {
+        Layer.prototype.stopLoading = function () {
             // this.fire("_initEvent");
             layerApi.stopLoading(this.id);
             return this;
@@ -326,7 +328,7 @@ define(
          * 获取layer的当前url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.getUrl = function() {
+        Layer.prototype.getUrl = function () {
             return layerApi.getUrl(this.id);
         };
 
@@ -334,7 +336,7 @@ define(
          * 获取layer是否可以history go
          * @return {boolean} canGoBack 是否可以返回
          */
-        Layer.prototype.canGoBack = function() {
+        Layer.prototype.canGoBack = function () {
             return layerApi.canGoBack(this.id);
         };
 
@@ -342,7 +344,7 @@ define(
          * 清除history堆栈
          * @return {boolean}
          */
-        Layer.prototype.clearHistory = function() {
+        Layer.prototype.clearHistory = function () {
             layerApi.clearHistory(this.id);
             return this;
         };
@@ -351,7 +353,7 @@ define(
          * layer是否是激活状态
          * @return {boolean}
          */
-        Layer.prototype.isActive = function() {
+        Layer.prototype.isActive = function () {
             return layerApi.isActive(this.id);
         };
 
@@ -360,18 +362,17 @@ define(
          * @param {Object} options top,left,width,height布局对象
          * @return {Object} native返回值
          */
-        Layer.prototype.setLayout = function(options) {
+        Layer.prototype.setLayout = function (options) {
             var me = this;
             [
                 'top',
                 'left',
                 'width',
                 'height'
-            ].forEach(function(n, i) {
+            ].forEach(function (n, i) {
                 if (options[n]) {
                     me[n] = options[n];
-                }
-                else {
+                } else {
                     options[n] = me[n];
                 }
             });
@@ -382,7 +383,7 @@ define(
          * 销毁此layer
          * @return {Object} this 当前实例
          */
-        Layer.prototype.destroy = function() {
+        Layer.prototype.destroy = function () {
             // this.fire("_initEvent");
             Control.prototype.destroy.apply(this, arguments);
             return this;
