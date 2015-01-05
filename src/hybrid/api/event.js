@@ -1,11 +1,11 @@
 /**
-* @file event.js
-* @path hybrid/api/event.js
-* @desc native所有组件传递事件通过此封装成on off fire;
-* @author clouda-team(https://github.com/clouda-team)
-*/
+ * @file event.js
+ * @path hybrid/api/event.js
+ * @desc native所有组件传递事件通过此封装成on off fire;
+ * @author clouda-team(https://github.com/clouda-team)
+ */
 define(
-    function(require) {
+    function (require) {
         /**
          * @class event
          * @singleton
@@ -43,14 +43,14 @@ define(
         ];
 
         var handlers = {};
-        var jsonParseFliter = function(key, val) {
+        var jsonParseFliter = function (key, val) {
             if (val && val.indexOf && val.indexOf('function') >= 0) {
                 return new Function('return ' + val)();
             }
             return val;
         };
 
-        event.on = function(type, handler, id, context, isonce) {
+        event.on = function (type, handler, id, context, isonce) {
             var me = this;
             id = id || (this.getCurrentId && this.getCurrentId()) || 'empty';
             context = context || this;
@@ -59,9 +59,7 @@ define(
                 var listeners = handlers[type]['listener'];
                 var len = listeners.length;
                 for (; i < len; i++) {
-                    if (listeners[i].id === id
-                        && listeners[i].callback === handler
-                        && listeners[i].context === context) {
+                    if (listeners[i].id === id && listeners[i].callback === handler && listeners[i].context === context) {
                         break;
                     }
                 }
@@ -77,13 +75,12 @@ define(
                     document.addEventListener(type, handlers[type].callback, false);
                     handlers[type]['listened'] = true;
                 }
-            }
-            else {
+            } else {
                 // console.log('不支持此事件');
                 handlers[type] = {};
                 handlers[type]['listener'] = [];
                 if (_type.indexOf(type) < 0) {
-                    handlers[type]['callback'] = function(event) {
+                    handlers[type]['callback'] = function (event) {
                         var parseData = JSON.parse(decodeURIComponent(event.data), jsonParseFliter);
                         var callback;
                         var listeners = handlers[type]['listener'];
@@ -91,7 +88,7 @@ define(
                         event.data = parseData.data;
                         event.detail = event.origin;
                         event.reciever = event.target = parseData.target;
-                        callback = function(data) {
+                        callback = function (data) {
                             me.fire(parseData.callEvent, event.origin, data);
                         };
                         for (var i = 0, len = listeners.length; i < len; i++) {
@@ -102,9 +99,8 @@ define(
                         }
                         isonce && me.off(type);
                     };
-                }
-                else {
-                    handlers[type]['callback'] = function(event) {
+                } else {
+                    handlers[type]['callback'] = function (event) {
                         var listeners = handlers[type]['listener'];
                         for (var i = 0, len = listeners.length; i < len; i++) {
                             if (listeners[i].id === event['origin']) {
@@ -118,7 +114,7 @@ define(
                 this.on(type, handler, id, context);
             }
         };
-        event.off = function(type, handler, id, context) {
+        event.off = function (type, handler, id, context) {
             id = id || (this.getCurrentId && this.getCurrentId()) || 'empty';
             context = context || this;
             if (handlers[type]) {
@@ -126,17 +122,14 @@ define(
                     document.removeEventListener(type, handlers[type].callback);
                     handlers[type]['listened'] = false;
                     handlers[type]['listener'] = [];
-                }
-                else {
+                } else {
                     var i = 0;
                     var listeners = handlers[type]['listener'];
                     var isAll = handler === 'all';
                     var len = listeners.length;
 
                     for (; i < len; i++) {
-                        if (listeners[i].id === id
-                            && listeners[i].context === context
-                            && (isAll || listeners[i].callback === handler)) {
+                        if (listeners[i].id === id && listeners[i].context === context && (isAll || listeners[i].callback === handler)) {
                             listeners.splice && listeners.splice(i, 1);
                             break;
                         }
@@ -146,13 +139,12 @@ define(
                         handlers[type]['listened'] = false;
                     }
                 }
-            }
-            else {
+            } else {
                 window.console && window.console.log('无此事件绑定');
             }
         };
 
-        event.once = function(type, handler, id, context) {
+        event.once = function (type, handler, id, context) {
             this.on(type, handler, id, context, 'isonce');
         };
 
