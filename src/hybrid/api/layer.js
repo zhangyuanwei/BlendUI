@@ -1,11 +1,11 @@
 /**
-* @file layer.js
-* @path hybrid/api/layer.js
-* @desc native layer相关api;
-* @author clouda-team(https://github.com/clouda-team)
-*/
+ * @file layer.js
+ * @path hybrid/api/layer.js
+ * @desc native layer相关api;
+ * @author clouda-team(https://github.com/clouda-team)
+ */
 define(
-    function(require) {
+    function (require) {
 
         /**
          * @class blend.layerApi
@@ -33,7 +33,7 @@ define(
          * @return {string} layerId
          * @private
          */
-        layer.prepare = function(layerId, options) {
+        layer.prepare = function (layerId, options) {
             // subLayer
             var layerOptions = filterOption(options);
             if (layerOptions.url) {
@@ -53,7 +53,7 @@ define(
          *    slow 500，normal 300， quick 100
          * @private
          */
-        layer.resume = function(layerId, options) {
+        layer.resume = function (layerId, options) {
             if (layer.isActive(layerId)) {
                 return;
             }
@@ -78,7 +78,7 @@ define(
                 layerId,
                 JSON.stringify(_options)
             ]);
-            setTimeout(function() {
+            setTimeout(function () {
                 layer.canGoBack(layerId) && layer.clearHistory(layerId);
             }, 500);
             layer.fire('in', false, layerId);
@@ -88,7 +88,7 @@ define(
          * 退出激活的layer
          * @param {string} layerId 退出后返回到的layerId
          */
-        layer.back = function(layerId) {
+        layer.back = function (layerId) {
             layerId = layerId || '';
             apiFn('backToPreviousLayer', [
                 layerId
@@ -99,7 +99,7 @@ define(
          * 隐藏sublayer
          * @param {string} layerId 要隐藏的subLayer Id
          */
-        layer.hideSubLayer = function(layerId) {
+        layer.hideSubLayer = function (layerId) {
             layerId = layerId || '';
             apiFn('hideSubLayer', [
                 layerId
@@ -113,7 +113,7 @@ define(
          * @return {string} layerId
          * @private
          */
-        layer.reload = function(layerId, url) {
+        layer.reload = function (layerId, url) {
             if (arguments.length === 1 || arguments.length === 0) {
                 url = layerId;
                 layerId = layer.getCurrentId();
@@ -121,8 +121,7 @@ define(
             if (!url) {
                 url = layer.getCurrentUrl();
                 layer.replaceUrl(layerId, url);
-            }
-            else {
+            } else {
                 url = getBasePath(url);
                 apiFn('layerLoadUrl', [
                     layerId,
@@ -132,12 +131,12 @@ define(
             return layerId;
         };
 
-        layer.replaceUrl = function(layerId, url) {
+        layer.replaceUrl = function (layerId, url) {
             layer.fire('replace', layerId, url);
             return layerId;
         };
 
-        layer.destroy = function(layerId) {
+        layer.destroy = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             apiFn('destroyLayer', [
                 layerId
@@ -146,7 +145,7 @@ define(
             return layerId;
         };
 
-        layer.setPullRefresh = function(layerId, isCan, options) {
+        layer.setPullRefresh = function (layerId, isCan, options) {
             layerId = layerId || layer.getCurrentId();
             options = JSON.stringify(options);
             apiFn('layerSetPullRefresh', [
@@ -156,7 +155,7 @@ define(
             ]);
         };
 
-        layer.stopPullRefresh = function(layerId) {
+        layer.stopPullRefresh = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             apiFn('layerStopRefresh', [
                 layerId
@@ -169,7 +168,7 @@ define(
          * @param {string} layerId 检测layerId
          * @return {boolean} 是否存在
          */
-        layer.isAvailable = function(layerId) {
+        layer.isAvailable = function (layerId) {
             return apiFn('isLayerAvailable', arguments);
         };
 
@@ -177,7 +176,7 @@ define(
          * 当前页面所在的layer id
          * @return {string} layerId
          */
-        layer.getCurrentId = function() {
+        layer.getCurrentId = function () {
             return apiFn('currentLayerId', arguments);
         };
 
@@ -185,11 +184,11 @@ define(
          * 当前页面的url
          * @return {string} url
          */
-        layer.getCurrentUrl = function() {
+        layer.getCurrentUrl = function () {
             return apiFn('currentLayerUrl', arguments);
         };
 
-        layer.stopLoading = function(layerId) {
+        layer.stopLoading = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerStopLoading', [
                 layerId
@@ -203,11 +202,10 @@ define(
         layer.off = event.off;
 
 
-        layer.fire = function(type, targetId, message, callback) {
+        layer.fire = function (type, targetId, message, callback) {
             if (!targetId) {
                 targetId = '';
-            }
-            else if (targetId === 'top') {
+            } else if (targetId === 'top') {
                 targetId = initLayerId;
             }
             var sender = layer.getCurrentId();
@@ -217,7 +215,7 @@ define(
             messData.origin = sender;
             if (callback) {
                 messData.callEvent = 'call_' + sender + '_' + (1 * new Date());
-                var handler = function(event) {
+                var handler = function (event) {
                     callback(event['data']);
                     layer.off(messData.callEvent);
                 };
@@ -232,13 +230,13 @@ define(
             ]);
         };
 
-        layer.postMessage = function(message, targetId, callback) {
+        layer.postMessage = function (message, targetId, callback) {
             layer.fire('message', targetId, message, callback);
         };
 
 
         // 获取layer原始url
-        layer.getOriginalUrl = function(layerId) {
+        layer.getOriginalUrl = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerGetOriginalUrl', [
                 layerId
@@ -246,7 +244,7 @@ define(
         };
 
         // 获取layer当前url
-        layer.getUrl = function(layerId) {
+        layer.getUrl = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerGetUrl', [
                 layerId
@@ -254,7 +252,7 @@ define(
         };
 
         // 当前url是否可以回退
-        layer.canGoBack = function(layerId) {
+        layer.canGoBack = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerCanGoBack', [
                 layerId
@@ -262,7 +260,7 @@ define(
         };
 
         // 当前url是否可以回退或者前进
-        layer.canGoBackOrForward = function(steps, layerId) {
+        layer.canGoBackOrForward = function (steps, layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerCanGoBackOrForward', [
                 layerId,
@@ -275,7 +273,7 @@ define(
          * @param {string} [layerId] 要测试的layerId
          * @return {boolean} native返回值
          */
-        layer.isActive = function(layerId) {
+        layer.isActive = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('isLayerActive', [
                 layerId
@@ -287,18 +285,62 @@ define(
          * @param {string} [layerId] 要清除的layerId
          * @return {Object} native返回码
          */
-        layer.clearHistory = function(layerId) {
+        layer.clearHistory = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerClearHistory', [
                 layerId
             ]);
         };
 
-        layer.setLayout = function(layerId, options) {
+        layer.setLayout = function (layerId, options) {
             var _options = filterOption(options);
             return apiFn('layerSetLayout', [
                 layerId,
                 JSON.stringify(_options)
+            ]);
+        };
+
+
+        /**
+         * 得到配置信息
+         *
+         * @param {string} [layerId] 需要获得配置的layer id
+         * @return {Object} 返回的配置对象
+         */
+        layer.getConfig = function (layerId) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('getLayerConfig', [
+                layerId
+            ]);
+        };
+
+        /**
+         * 设置layer的头部信息
+         *
+         * @param layerId
+         * @param options
+         * @return {undefined}
+         */
+        layer.setHeader = function (layerId, options) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('layerSetHeader', [
+                layerId,
+                JSON.stringify(options)
+            ]);
+        };
+
+        /**
+         * 设置layer的头部信息
+         *
+         * @param layerId
+         * @param options
+         * @return {undefined}
+         */
+        layer.setNavbar = function (layerId, options) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('layerSetNavbar', [
+                layerId,
+                JSON.stringify(options)
             ]);
         };
 

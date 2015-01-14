@@ -7,6 +7,33 @@
  */
 define(
     function (require) {
+        var navBar = {
+            items: [{
+                title: "百度",
+                icon: "百度图标",
+                url: "http://www.baidu.com"
+            }, {
+                title: "谷歌",
+                icon: "谷歌图标",
+                url: "http://www.google.com"
+            }, {
+                title: "新浪",
+                icon: "新浪图标",
+                url: "http://www.sina.com",
+                'backgroundColor': "#ff6600",
+                'foregroundColor': "#ffffff"
+            }, {
+                title: "QQ",
+                icon: "QQ图标",
+                url: "http://www.qq.com"
+            }, {
+                title: "淘宝",
+                icon: "淘宝图标",
+                url: "http://www.taobao.com"
+            }],
+            'backgroundColor': "#ffffff",
+            'foregroundColor': "#000000"
+        };
         var blend = require('./blend');
         var lib = require('../common/lib');
         var runtime = require('./runtime');
@@ -195,6 +222,17 @@ define(
                     me.url = event.url;
                     me.changeUrl && me.changeUrl.call(me, event, me.url);
                 }
+                //layerApi.setNavbar(me.id, navBar);
+                //layer.setNavbar = function (layerId, options) {
+                //layerApi.setHeader(me.id, {
+                //    'titleString': "测试title",
+                //    'titleBackgroundColor': "#000000",
+                //    'titleForegroundColor': "#ffffff"
+                //});
+                //alert("event.appURL:\n\t" + event.appURL);
+                //alert("layerApi.getConfig:\n\t" + JSON.stringify(layerApi.getConfig(me.id)));
+                //layer.setHeader = function (layerId, options) {
+                //layerSetHome({"backgroundColorxxx": "FFFFFF"})
                 // console.info('Time layerLoadFinish:' + (new Date() - __time));
                 me.onload && me.onload.apply(me, arguments);
             }, me.id, me);
@@ -221,10 +259,38 @@ define(
          */
         Layer.prototype.paint = function () {
             var me = this;
+
+            var fcolor = Math.floor(0xFFFFFF * Math.random());
+            var bcolor = 0xFFFFFF ^ fcolor;
             layerApi.prepare(me.id, {
-                'titleString': me.titleString,
-                'titleBackgroundColor': me.titleBackgroundColor,
-                'titleForegroundColor': me.titleForegroundColor,
+                'tabBar': me.navbar ? navBar : undefined,
+                'header': {
+                    //'titleBackgroundColor': me.titleBackgroundColor,
+                    //'titleForegroundColor': me.titleForegroundColor,
+                    //'titleString': "titleString",
+                    'title': me.titleString,
+                    //'backgroundColor': "#ffffff",
+                    //'foregroundColor': "#000000",
+                    'backgroundColor': "#" + (bcolor + 0x1000000).toString(16).substr(1),
+                    'foregroundColor': "#" + (fcolor + 0x1000000).toString(16).substr(1),
+                    'minHeight': me.id === "__id_1" ? undefined : "20",
+                    'left': [{
+                        icon: "f015",
+                        text: "text",
+                        'backgroundColor': "#ffffff",
+                        'foregroundColor': "#000000",
+                        //action: "gourl(showLayer)|event()"
+                        action: "event({\"a\":\"b\"})"
+                    }],
+                    'right': [{
+                        icon: "f015",
+                        text: "text",
+                        'backgroundColor': "#ffffff",
+                        'foregroundColor': "#000000",
+                        //action: "gourl(showLayer)|event({\"a\":\"b\"})"
+                        action: "event({\"a\":\"b\"})"
+                    }]
+                },
                 'parent': me.parent,
                 'url': me.url,
                 'dom': me.dom,
@@ -387,6 +453,15 @@ define(
             // this.fire("_initEvent");
             Control.prototype.destroy.apply(this, arguments);
             return this;
+        };
+
+        /**
+         * 得到当前Layer的配置信息
+         *
+         * @return {Object} 当前Layer的配置信息
+         */
+        Layer.prototype.getConfig = function () {
+            return layerApi.getConfig(this.id);
         };
 
         return Layer;
