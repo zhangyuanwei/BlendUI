@@ -39,6 +39,10 @@ define(
             if (layerOptions.url) {
                 layerOptions.url = getBasePath(layerOptions.url);
             }
+            if(layerOptions.sliderLayer){
+                layerOptions.width = (layerOptions.width||(window.innerWidth*1.5))+"";
+            }
+            
             apiFn('prepareLayer', [
                 layerId,
                 JSON.stringify(layerOptions)
@@ -62,13 +66,11 @@ define(
                 'reverse': false,
                 'duration': 300,
                 'cover': false
-
             };
             var replaceString = {
                 'slow': 500,
                 'normal': 300,
                 'quick': 100
-
             };
             _options = filterOption(options, false, _options);
             if (replaceString[_options['duration']]) {
@@ -127,7 +129,7 @@ define(
                     layerId,
                     url
                 ]);
-            }
+            }  
             return layerId;
         };
 
@@ -291,8 +293,24 @@ define(
                 layerId
             ]);
         };
+        // showSlider
+        layer.showSlider = function(layerId) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('showSlider', [
+                layerId
+            ]);
+        };
 
-        layer.setLayout = function (layerId, options) {
+        // hideSlider
+        layer.hideSlider = function(layerId) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('hideSlider', [
+                layerId
+            ]);
+        };
+
+        // 设置subLayer的大小
+        layer.setLayout = function(layerId, options) {
             var _options = filterOption(options);
             return apiFn('layerSetLayout', [
                 layerId,
