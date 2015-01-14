@@ -90,7 +90,7 @@ module.exports = function (grunt) {
             test:{
                 src: ['test/autotest.html'],
             }
-        }
+        },
         autoTest:{
             src: ['test/autotest/*.js']
         }
@@ -119,7 +119,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('hybrid', [
-        'jshint',
+        //'jshint',
         'requirejs:hybrid',
         'uglify:hybrid'
     ]);
@@ -129,7 +129,7 @@ module.exports = function (grunt) {
         'uglify:web'
     ]);
     grunt.registerTask('boost', [
-        'jshint',
+        //'jshint',
         'requirejs:boost',
         'uglify:boost'
     ]);

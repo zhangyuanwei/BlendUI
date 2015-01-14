@@ -1,5 +1,4 @@
-(function () {
-/**
+(function () {/**
  * @license almond 0.2.9 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
@@ -737,13 +736,13 @@ define(
 );
 
 /**
-* @file event.js
-* @path hybrid/api/event.js
-* @desc native所有组件传递事件通过此封装成on off fire;
-* @author clouda-team(https://github.com/clouda-team)
-*/
+ * @file event.js
+ * @path hybrid/api/event.js
+ * @desc native所有组件传递事件通过此封装成on off fire;
+ * @author clouda-team(https://github.com/clouda-team)
+ */
 define(
-    'src/hybrid/api/event',['require'],function(require) {
+    'src/hybrid/api/event',['require'],function (require) {
         /**
          * @class event
          * @singleton
@@ -782,14 +781,14 @@ define(
         ];
 
         var handlers = {};
-        var jsonParseFliter = function(key, val) {
+        var jsonParseFliter = function (key, val) {
             if (val && val.indexOf && val.indexOf('function') >= 0) {
                 return new Function('return ' + val)();
             }
             return val;
         };
 
-        event.on = function(type, handler, id, context, isonce) {
+        event.on = function (type, handler, id, context, isonce) {
             var me = this;
             id = id || (this.getCurrentId && this.getCurrentId()) || 'empty';
             context = context || this;
@@ -798,9 +797,7 @@ define(
                 var listeners = handlers[type]['listener'];
                 var len = listeners.length;
                 for (; i < len; i++) {
-                    if (listeners[i].id === id
-                        && listeners[i].callback === handler
-                        && listeners[i].context === context) {
+                    if (listeners[i].id === id && listeners[i].callback === handler && listeners[i].context === context) {
                         break;
                     }
                 }
@@ -816,13 +813,12 @@ define(
                     document.addEventListener(type, handlers[type].callback, false);
                     handlers[type]['listened'] = true;
                 }
-            }
-            else {
+            } else {
                 // console.log('不支持此事件');
                 handlers[type] = {};
                 handlers[type]['listener'] = [];
                 if (_type.indexOf(type) < 0) {
-                    handlers[type]['callback'] = function(event) {
+                    handlers[type]['callback'] = function (event) {
                         var parseData = JSON.parse(decodeURIComponent(event.data), jsonParseFliter);
                         var callback;
                         var listeners = handlers[type]['listener'];
@@ -830,7 +826,7 @@ define(
                         event.data = parseData.data;
                         event.detail = event.origin;
                         event.reciever = event.target = parseData.target;
-                        callback = function(data) {
+                        callback = function (data) {
                             me.fire(parseData.callEvent, event.origin, data);
                         };
                         for (var i = 0, len = listeners.length; i < len; i++) {
@@ -841,9 +837,8 @@ define(
                         }
                         isonce && me.off(type);
                     };
-                }
-                else {
-                    handlers[type]['callback'] = function(event) {
+                } else {
+                    handlers[type]['callback'] = function (event) {
                         var listeners = handlers[type]['listener'];
                         for (var i = 0, len = listeners.length; i < len; i++) {
                             if (listeners[i].id === event['origin']) {
@@ -857,7 +852,7 @@ define(
                 this.on(type, handler, id, context);
             }
         };
-        event.off = function(type, handler, id, context) {
+        event.off = function (type, handler, id, context) {
             id = id || (this.getCurrentId && this.getCurrentId()) || 'empty';
             context = context || this;
             if (handlers[type]) {
@@ -865,17 +860,14 @@ define(
                     document.removeEventListener(type, handlers[type].callback);
                     handlers[type]['listened'] = false;
                     handlers[type]['listener'] = [];
-                }
-                else {
+                } else {
                     var i = 0;
                     var listeners = handlers[type]['listener'];
                     var isAll = handler === 'all';
                     var len = listeners.length;
 
                     for (; i < len; i++) {
-                        if (listeners[i].id === id
-                            && listeners[i].context === context
-                            && (isAll || listeners[i].callback === handler)) {
+                        if (listeners[i].id === id && listeners[i].context === context && (isAll || listeners[i].callback === handler)) {
                             listeners.splice && listeners.splice(i, 1);
                             break;
                         }
@@ -885,13 +877,12 @@ define(
                         handlers[type]['listened'] = false;
                     }
                 }
-            }
-            else {
+            } else {
                 window.console && window.console.log('无此事件绑定');
             }
         };
 
-        event.once = function(type, handler, id, context) {
+        event.once = function (type, handler, id, context) {
             this.on(type, handler, id, context, 'isonce');
         };
 
@@ -900,13 +891,13 @@ define(
 );
 
 /**
-* @file layer.js
-* @path hybrid/api/layer.js
-* @desc native layer相关api;
-* @author clouda-team(https://github.com/clouda-team)
-*/
+ * @file layer.js
+ * @path hybrid/api/layer.js
+ * @desc native layer相关api;
+ * @author clouda-team(https://github.com/clouda-team)
+ */
 define(
-    'src/hybrid/api/layer',['require','./event','./util'],function(require) {
+    'src/hybrid/api/layer',['require','./event','./util'],function (require) {
 
         /**
          * @class blend.layerApi
@@ -934,7 +925,7 @@ define(
          * @return {string} layerId
          * @private
          */
-        layer.prepare = function(layerId, options) {
+        layer.prepare = function (layerId, options) {
             // subLayer
             var layerOptions = filterOption(options);
             if (layerOptions.url) {
@@ -958,7 +949,7 @@ define(
          *    slow 500，normal 300， quick 100
          * @private
          */
-        layer.resume = function(layerId, options) {
+        layer.resume = function (layerId, options) {
             if (layer.isActive(layerId)) {
                 return;
             }
@@ -981,7 +972,7 @@ define(
                 layerId,
                 JSON.stringify(_options)
             ]);
-            setTimeout(function() {
+            setTimeout(function () {
                 layer.canGoBack(layerId) && layer.clearHistory(layerId);
             }, 500);
             layer.fire('in', false, layerId);
@@ -991,7 +982,7 @@ define(
          * 退出激活的layer
          * @param {string} layerId 退出后返回到的layerId
          */
-        layer.back = function(layerId) {
+        layer.back = function (layerId) {
             layerId = layerId || '';
             apiFn('backToPreviousLayer', [
                 layerId
@@ -1002,7 +993,7 @@ define(
          * 隐藏sublayer
          * @param {string} layerId 要隐藏的subLayer Id
          */
-        layer.hideSubLayer = function(layerId) {
+        layer.hideSubLayer = function (layerId) {
             layerId = layerId || '';
             apiFn('hideSubLayer', [
                 layerId
@@ -1016,7 +1007,7 @@ define(
          * @return {string} layerId
          * @private
          */
-        layer.reload = function(layerId, url) {
+        layer.reload = function (layerId, url) {
             if (arguments.length === 1 || arguments.length === 0) {
                 url = layerId;
                 layerId = layer.getCurrentId();
@@ -1024,8 +1015,7 @@ define(
             if (!url) {
                 url = layer.getCurrentUrl();
                 layer.replaceUrl(layerId, url);
-            }
-            else {
+            } else {
                 url = getBasePath(url);
                 apiFn('layerLoadUrl', [
                     layerId,
@@ -1035,12 +1025,12 @@ define(
             return layerId;
         };
 
-        layer.replaceUrl = function(layerId, url) {
+        layer.replaceUrl = function (layerId, url) {
             layer.fire('replace', layerId, url);
             return layerId;
         };
 
-        layer.destroy = function(layerId) {
+        layer.destroy = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             apiFn('destroyLayer', [
                 layerId
@@ -1049,7 +1039,7 @@ define(
             return layerId;
         };
 
-        layer.setPullRefresh = function(layerId, isCan, options) {
+        layer.setPullRefresh = function (layerId, isCan, options) {
             layerId = layerId || layer.getCurrentId();
             options = JSON.stringify(options);
             apiFn('layerSetPullRefresh', [
@@ -1059,7 +1049,7 @@ define(
             ]);
         };
 
-        layer.stopPullRefresh = function(layerId) {
+        layer.stopPullRefresh = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             apiFn('layerStopRefresh', [
                 layerId
@@ -1072,7 +1062,7 @@ define(
          * @param {string} layerId 检测layerId
          * @return {boolean} 是否存在
          */
-        layer.isAvailable = function(layerId) {
+        layer.isAvailable = function (layerId) {
             return apiFn('isLayerAvailable', arguments);
         };
 
@@ -1080,7 +1070,7 @@ define(
          * 当前页面所在的layer id
          * @return {string} layerId
          */
-        layer.getCurrentId = function() {
+        layer.getCurrentId = function () {
             return apiFn('currentLayerId', arguments);
         };
 
@@ -1088,11 +1078,11 @@ define(
          * 当前页面的url
          * @return {string} url
          */
-        layer.getCurrentUrl = function() {
+        layer.getCurrentUrl = function () {
             return apiFn('currentLayerUrl', arguments);
         };
 
-        layer.stopLoading = function(layerId) {
+        layer.stopLoading = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerStopLoading', [
                 layerId
@@ -1106,11 +1096,10 @@ define(
         layer.off = event.off;
 
 
-        layer.fire = function(type, targetId, message, callback) {
+        layer.fire = function (type, targetId, message, callback) {
             if (!targetId) {
                 targetId = '';
-            }
-            else if (targetId === 'top') {
+            } else if (targetId === 'top') {
                 targetId = initLayerId;
             }
             var sender = layer.getCurrentId();
@@ -1120,7 +1109,7 @@ define(
             messData.origin = sender;
             if (callback) {
                 messData.callEvent = 'call_' + sender + '_' + (1 * new Date());
-                var handler = function(event) {
+                var handler = function (event) {
                     callback(event['data']);
                     layer.off(messData.callEvent);
                 };
@@ -1135,13 +1124,13 @@ define(
             ]);
         };
 
-        layer.postMessage = function(message, targetId, callback) {
+        layer.postMessage = function (message, targetId, callback) {
             layer.fire('message', targetId, message, callback);
         };
 
 
         // 获取layer原始url
-        layer.getOriginalUrl = function(layerId) {
+        layer.getOriginalUrl = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerGetOriginalUrl', [
                 layerId
@@ -1149,7 +1138,7 @@ define(
         };
 
         // 获取layer当前url
-        layer.getUrl = function(layerId) {
+        layer.getUrl = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerGetUrl', [
                 layerId
@@ -1157,7 +1146,7 @@ define(
         };
 
         // 当前url是否可以回退
-        layer.canGoBack = function(layerId) {
+        layer.canGoBack = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerCanGoBack', [
                 layerId
@@ -1165,7 +1154,7 @@ define(
         };
 
         // 当前url是否可以回退或者前进
-        layer.canGoBackOrForward = function(steps, layerId) {
+        layer.canGoBackOrForward = function (steps, layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerCanGoBackOrForward', [
                 layerId,
@@ -1178,7 +1167,7 @@ define(
          * @param {string} [layerId] 要测试的layerId
          * @return {boolean} native返回值
          */
-        layer.isActive = function(layerId) {
+        layer.isActive = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('isLayerActive', [
                 layerId
@@ -1190,7 +1179,7 @@ define(
          * @param {string} [layerId] 要清除的layerId
          * @return {Object} native返回码
          */
-        layer.clearHistory = function(layerId) {
+        layer.clearHistory = function (layerId) {
             layerId = layerId || layer.getCurrentId();
             return apiFn('layerClearHistory', [
                 layerId
@@ -1218,6 +1207,50 @@ define(
             return apiFn('layerSetLayout', [
                 layerId,
                 JSON.stringify(_options)
+            ]);
+        };
+
+
+        /**
+         * 得到配置信息
+         *
+         * @param {string} [layerId] 需要获得配置的layer id
+         * @return {Object} 返回的配置对象
+         */
+        layer.getConfig = function (layerId) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('getLayerConfig', [
+                layerId
+            ]);
+        };
+
+        /**
+         * 设置layer的头部信息
+         *
+         * @param layerId
+         * @param options
+         * @return {undefined}
+         */
+        layer.setHeader = function (layerId, options) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('layerSetHeader', [
+                layerId,
+                JSON.stringify(options)
+            ]);
+        };
+
+        /**
+         * 设置layer的头部信息
+         *
+         * @param layerId
+         * @param options
+         * @return {undefined}
+         */
+        layer.setNavbar = function (layerId, options) {
+            layerId = layerId || layer.getCurrentId();
+            return apiFn('layerSetNavbar', [
+                layerId,
+                JSON.stringify(options)
             ]);
         };
 
@@ -2424,7 +2457,7 @@ define(
     }
 );
 
- /**
+/**
  * @file Layer.js
  * @path hybrid/Layer.js
  * @extends Control
@@ -2432,37 +2465,63 @@ define(
  * @author clouda-team(https://github.com/clouda-team)
  */
 define(
-    'src/hybrid/Layer',['require','./blend','../common/lib','./runtime','./Control'],function(require) {
+    'src/hybrid/Layer',['require','./blend','../common/lib','./runtime','./Control'],function (require) {
+        var navBar = {
+            items: [{
+                title: "百度",
+                icon: "百度图标",
+                url: "http://www.baidu.com"
+            }, {
+                title: "谷歌",
+                icon: "谷歌图标",
+                url: "http://www.google.com"
+            }, {
+                title: "新浪",
+                icon: "新浪图标",
+                url: "http://www.sina.com",
+                'backgroundColor': "#ff6600",
+                'foregroundColor': "#ffffff"
+            }, {
+                title: "QQ",
+                icon: "QQ图标",
+                url: "http://www.qq.com"
+            }, {
+                title: "淘宝",
+                icon: "淘宝图标",
+                url: "http://www.taobao.com"
+            }],
+            'backgroundColor': "#ffffff",
+            'foregroundColor': "#000000"
+        };
         var blend = require('./blend');
         var lib = require('../common/lib');
         var runtime = require('./runtime');
         var Control = require('./Control');
         var layerApi = runtime.layer;
         // var __time = 0;
-        var getBasePath = function(link) {
+        var getBasePath = function (link) {
             var a = document.createElement('a');
             a.href = link;
             return a.href;
         };
         // 注册全局layer事件
-        blend.ready(function() {
+        blend.ready(function () {
             // layer注册事件
             try {
                 // 如是runtime环境，调用runtime接口 需要删除启动画面
                 // window.nuwa_runtime && nuwa_runtime.removeSplashScreen();
-                layerApi.on('in', function(event) {
+                layerApi.on('in', function (event) {
                     var layer = blend.get(event.data);
                     if (layer && layer.onshow) {
                         layer.onshow();
                     }
                 });
 
-                layerApi.on('replace', function(event) {
+                layerApi.on('replace', function (event) {
                     var url = event.data;
                     location.replace(url);
                 });
-            }
-            catch (e) {
+            } catch (e) {
                 console.log(e.message);
             }
         });
@@ -2499,7 +2558,7 @@ define(
          * @param {Function} [options.ptrFn] 下拉刷新回调@todo
          * @return {Layer} this
          */
-        var Layer = function(options) {
+        var Layer = function (options) {
             options = options || {};
             if (options.url) {
                 options.url = getBasePath(options.url);
@@ -2521,7 +2580,7 @@ define(
          * @param {Object} options 创建layer的初始化参数
          * @return {Layer} layer实例
          */
-        Layer.prototype._init = function(options) {
+        Layer.prototype._init = function (options) {
             var me = this;
             // 处理options值;
             if (!(options.url || options.dom)) {
@@ -2576,7 +2635,7 @@ define(
          * 事件初始化
          * @return {Layer} this
          */
-        Layer.prototype._initEvent = function() {
+        Layer.prototype._initEvent = function () {
             var me = this;
             var cancelTime = null;
 
@@ -2585,18 +2644,18 @@ define(
             }*/
             // 下拉刷新回调，建议在相应的document里面触发
             if (me.ptrFn) {
-                layerApi.on('layerPullDown', function(event) {
+                layerApi.on('layerPullDown', function (event) {
                     me.ptrFn.apply(me, arguments);
                 }, me.id, me);
             }
-            layerApi.on('layerCreateSuccess', function(event) {
+            layerApi.on('layerCreateSuccess', function (event) {
                 if (me.autoStopLoading) {
-                    cancelTime = setTimeout(function() {
+                    cancelTime = setTimeout(function () {
                         me.stopLoading();
                     }, me.maxLoadingTime);
                 }
 
-                blend.ready(function(e) {
+                blend.ready(function (e) {
                     me.pullToRefresh && layerApi.setPullRefresh(me.id, true, {
                         'pullText': me.pullText,
                         'loadingText': me.loadingText,
@@ -2609,9 +2668,9 @@ define(
                 // console.info('Time layerCreateSuccess:' + (new Date() - __time));
                 me.afterrender && me.afterrender.apply(me, arguments);
             }, me.id, me);
-            layerApi.on('layerLoadFinish', function(event) {
+            layerApi.on('layerLoadFinish', function (event) {
                 if (!me.autoStopLoading) {
-                    cancelTime = setTimeout(function() {
+                    cancelTime = setTimeout(function () {
                         me.stopLoading();
                     }, me.maxLoadingTime);
                 }
@@ -2622,17 +2681,28 @@ define(
                     me.url = event.url;
                     me.changeUrl && me.changeUrl.call(me, event, me.url);
                 }
+                //layerApi.setNavbar(me.id, navBar);
+                //layer.setNavbar = function (layerId, options) {
+                //layerApi.setHeader(me.id, {
+                //    'titleString': "测试title",
+                //    'titleBackgroundColor': "#000000",
+                //    'titleForegroundColor': "#ffffff"
+                //});
+                //alert("event.appURL:\n\t" + event.appURL);
+                //alert("layerApi.getConfig:\n\t" + JSON.stringify(layerApi.getConfig(me.id)));
+                //layer.setHeader = function (layerId, options) {
+                //layerSetHome({"backgroundColorxxx": "FFFFFF"})
                 // console.info('Time layerLoadFinish:' + (new Date() - __time));
                 me.onload && me.onload.apply(me, arguments);
             }, me.id, me);
 
-            layerApi.on('layerPoped', function(event) {
+            layerApi.on('layerPoped', function (event) {
                 me.onhide && me.onhide.apply(me, arguments);
                 layerApi.fire('out', false, me.id);
             }, me.id, me);
 
             // 销毁之后撤销绑定
-            me.on('afterdistory', function() {
+            me.on('afterdistory', function () {
                 clearTimeout(cancelTime);
                 me.ptrFn && layerApi.off('layerPullDown', 'all', me.id, me);
                 layerApi.off('layerCreateSuccess', 'all', me.id, me);
@@ -2646,9 +2716,41 @@ define(
          * 创建渲染页面
          * @return {Object} this 当前实例
          */
-        Layer.prototype.paint = function() {
+        Layer.prototype.paint = function () {
             var me = this;
+
+            var fcolor = Math.floor(0xFFFFFF * Math.random());
+            var bcolor = 0xFFFFFF ^ fcolor;
             layerApi.prepare(me.id, {
+                'tabBar': me.navbar ? navBar : undefined,
+                'header': {
+                    //'titleBackgroundColor': me.titleBackgroundColor,
+                    //'titleForegroundColor': me.titleForegroundColor,
+                    //'titleString': "titleString",
+                    'title': me.titleString,
+                    //'backgroundColor': "#ffffff",
+                    //'foregroundColor': "#000000",
+                    'backgroundColor': "#" + (bcolor + 0x1000000).toString(16).substr(1),
+                    'foregroundColor': "#" + (fcolor + 0x1000000).toString(16).substr(1),
+                    'minHeight': me.id === "__id_1" ? undefined : "20",
+                    'left': [{
+                        icon: "f015",
+                        text: "text",
+                        'backgroundColor': "#ffffff",
+                        'foregroundColor': "#000000",
+                        //action: "gourl(showLayer)|event()"
+                        action: "event({\"a\":\"b\"})"
+                    }],
+                    'right': [{
+                        icon: "f015",
+                        text: "text",
+                        'backgroundColor': "#ffffff",
+                        'foregroundColor': "#000000",
+                        //action: "gourl(showLayer)|event({\"a\":\"b\"})"
+                        action: "event({\"a\":\"b\"})"
+                    }]
+                },
+                'parent': me.parent,
                 'url': me.url,
                 'dom': me.dom,
                 'backgroundColor': me.backgroundColor,
@@ -2664,7 +2766,7 @@ define(
          * 激活页面
          * @return {Object} this 当前实例
          */
-        Layer.prototype. in = function() {
+        Layer.prototype.in = function () {
             var me = this;
             Control.prototype.in.apply(me, arguments);
             if (!layerApi.isAvailable(this.id)) {
@@ -2686,12 +2788,11 @@ define(
          * @param {string} [toLayerId] 退场后返回的layerId
          * @return {Object} this 当前实例
          */
-        Layer.prototype.out = function(toLayerId) {
+        Layer.prototype.out = function (toLayerId) {
             Control.prototype.out.apply(this, arguments);
             if (this.subLayer) {
                 layerApi.hideSubLayer(this.id);
-            }
-            else {
+            } else {
                 layerApi.back(toLayerId);
             }
             return this;
@@ -2702,7 +2803,7 @@ define(
          * @param {string} url 刷新页面时所用的url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.reload = function(url) {
+        Layer.prototype.reload = function (url) {
             if (url) {
                 url = getBasePath(url);
                 if (url !== this.url) {
@@ -2718,7 +2819,7 @@ define(
          * @param {string} url 刷新页面时所用的url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.replace = function(url) {
+        Layer.prototype.replace = function (url) {
             url = url ? getBasePath(url) : this.url;
             layerApi.replaceUrl(this.id, url);
             return this;
@@ -2729,7 +2830,7 @@ define(
          *
          * @return {Object} this 当前实例
          */
-        Layer.prototype.stopPullRefresh = function() {
+        Layer.prototype.stopPullRefresh = function () {
             layerApi.stopPullRefresh(this.id);
             return this;
         };
@@ -2738,7 +2839,7 @@ define(
          * 停止loading状态
          * @return {Object} this 当前实例
          */
-        Layer.prototype.stopLoading = function() {
+        Layer.prototype.stopLoading = function () {
             // this.fire("_initEvent");
             layerApi.stopLoading(this.id);
             return this;
@@ -2748,7 +2849,7 @@ define(
          * 获取layer的当前url
          * @return {Object} this 当前实例
          */
-        Layer.prototype.getUrl = function() {
+        Layer.prototype.getUrl = function () {
             return layerApi.getUrl(this.id);
         };
 
@@ -2756,7 +2857,7 @@ define(
          * 获取layer是否可以history go
          * @return {boolean} canGoBack 是否可以返回
          */
-        Layer.prototype.canGoBack = function() {
+        Layer.prototype.canGoBack = function () {
             return layerApi.canGoBack(this.id);
         };
 
@@ -2764,7 +2865,7 @@ define(
          * 清除history堆栈
          * @return {boolean}
          */
-        Layer.prototype.clearHistory = function() {
+        Layer.prototype.clearHistory = function () {
             layerApi.clearHistory(this.id);
             return this;
         };
@@ -2773,7 +2874,7 @@ define(
          * layer是否是激活状态
          * @return {boolean}
          */
-        Layer.prototype.isActive = function() {
+        Layer.prototype.isActive = function () {
             return layerApi.isActive(this.id);
         };
 
@@ -2782,18 +2883,17 @@ define(
          * @param {Object} options top,left,width,height布局对象
          * @return {Object} native返回值
          */
-        Layer.prototype.setLayout = function(options) {
+        Layer.prototype.setLayout = function (options) {
             var me = this;
             [
                 'top',
                 'left',
                 'width',
                 'height'
-            ].forEach(function(n, i) {
+            ].forEach(function (n, i) {
                 if (options[n]) {
                     me[n] = options[n];
-                }
-                else {
+                } else {
                     options[n] = me[n];
                 }
             });
@@ -2804,10 +2904,19 @@ define(
          * 销毁此layer
          * @return {Object} this 当前实例
          */
-        Layer.prototype.destroy = function() {
+        Layer.prototype.destroy = function () {
             // this.fire("_initEvent");
             Control.prototype.destroy.apply(this, arguments);
             return this;
+        };
+
+        /**
+         * 得到当前Layer的配置信息
+         *
+         * @return {Object} 当前Layer的配置信息
+         */
+        Layer.prototype.getConfig = function () {
+            return layerApi.getConfig(this.id);
         };
 
         // Layer的静态方法
@@ -3633,4 +3742,5 @@ require([
     }, null, true);
 
 define("src/hybrid/main", function(){});
+
 }());

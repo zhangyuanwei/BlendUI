@@ -2554,10 +2554,21 @@ define('src/boost/meta',[],function () {
 });
 
 define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
+    //define(["src/boost/zepto", "src/boost/meta"], function ($, meta) {
     
-    var LAYER_TRIGGER = "blend-layer-trigger";
-    var LAYER_BACK = "blend-layer-back";
-    var LAYER_FX = "blend-layer-fx";
+    var LAYER_SELECTOR = "blend-layer-selector";
+    var BACK_SELECTOR = "blend-back-selector";
+    var PRELOAD_SELECTOR = "blend-preload-selector";
+
+    var LAYER_CLASS = "blend-layer";
+    var BACK_CLASS = "blend-back";
+    var PRELOAD_CLASS = "blend-preload";
+
+    function log() {
+        var args = [].join.call(arguments, " ");
+        //console.log("##[" + new Date() + "] Clouda: " + args + " ##");
+        Blend.ui.fire("log", 0, args);
+    }
 
     function findParentByTagName(element, tagName) {
         tagName = tagName.toUpperCase();
@@ -2571,18 +2582,19 @@ define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function
         return src.defaultPrevented ? src.defaultPrevented() : src.returnValue === false;
     }
 
-    var layer;
+    function getURL(url) {
+        var elm = document.createElement("A");
+        elm.href = url;
+        return elm.href;
+    }
 
-    function openInLayer(url) {
-        if (layer && layer.distory) {
-            layer.distory();
-        }
+    function openInLayer(options) {
+        Blend.ui.fire("open", "0", options);
+    }
 
-        layer = new Blend.ui.Layer({
-            url: url,
-            active: true,
-            fx: meta.get(LAYER_FX, "slide")
-        });
+    function layerBack() {
+        //TODO 判断页面 history ???
+        Blend.ui.fire("back", "0");
     }
 
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
@@ -2593,32 +2605,74 @@ define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function
             (text + "").replace(rtrim, "");
     }
 
-    function isBackTrigger(element) {
-        var selector = meta.get(LAYER_BACK);
-        if (selector && Sizzle.matchesSelector(element, selector)) {
+    var rclass = /\t\r\n\f/g;
+
+    function hasClass(element, selector) {
+        var className = " " + selector + " ";
+        return (" " + element.className + " ").replace(rclass, " ").indexOf(className) >= 0;
+    }
+
+    function isLayerTrigger(element) {
+        var selector = meta.get(LAYER_SELECTOR);
+        //selector = ".am-navbar a";
+        if (hasClass(element, LAYER_CLASS) || (selector && Sizzle.matchesSelector(element, selector))) {
+            //if (hasClass(element, LAYER_CLASS) || (selector && $(element).is(selector))) {
             return true;
         }
         return false;
     }
 
-    function isLayerTrigger(element) {
-        var selector = meta.get(LAYER_TRIGGER);
-        if (selector && Sizzle.matchesSelector(element, selector)) {
+    function isBackTrigger(element) {
+        var selector = meta.get(BACK_SELECTOR);
+        if (hasClass(element, BACK_CLASS) || (selector && Sizzle.matchesSelector(element, selector))) {
+            //if (hasClass(element, BACK_CLASS) || (selector && $(element).is(selector))) {
+            return true;
+        }
+        return false;
+    }
+
+    function isPreloadLayer(element) {
+        var selector = meta.get(PRELOAD_SELECTOR);
+        if (hasClass(element, PRELOAD_CLASS) || (selector && Sizzle.matchesSelector(element, selector))) {
+            //if (hasClass(element, PRELOAD_CLASS) || (selector && $(element).is(selector))) {
             return true;
         }
         return false;
     }
 
     function preventDefault(event) {
-        event.preventDefault();
-        event.returnValue = false;
+        try {
+            event.preventDefault();
+            event.returnValue = false;
+        } catch (e) {}
     }
 
+    //var starTime = 0;
+
+    //function layerTapHandler(event) {
+    //    log("layerTapHandler");
+    //    //starTime = +new Date();
+    //    __layerTriggerHandler(event);
+    //    //alert("tap");
+    //    return false;
+    //}
+
+    //function layerTriggerHandler(event) {
+    //    log("layerTriggerHandler");
+    //    preventDefault(event);
+    //}
+
     function layerTriggerHandler(event) {
+        //alert("click:" + ((+new Date()) - starTime) + "ms");
+        //log("layerTriggerHandler");
+
         var target;
         var href;
+        var title;
+        var options;
 
         if (isDefaultPrevented(event)) {
+            //log("isDefaultPrevented");
             return;
         }
 
@@ -2632,14 +2686,74 @@ define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function
 
         //判断是否是回退的触发器
         if (isBackTrigger(target)) {
+            //log("isBackTrigger");
             preventDefault(event);
-            Blend.ui.layerBack();
+            layerBack();
         }
+
         //是否是Layer触发按键
         else if (isLayerTrigger(target)) {
+            //log("isLayerTrigger");
             preventDefault(event);
-            openInLayer(href);
+            options = {
+                //url: href
+                url: target.href,
+                preload: false
+            };
+
+            if (isPreloadLayer(target)) {
+                //log("isPreloadLayer");
+                options.preload = true;
+            }
+
+            if (target.hasAttribute("data-blend-title")) {
+                options.titleString = target.getAttribute("data-blend-title");
+                //if (target.hasAttribute("data-blend-title-bg")) {
+                //    options.titleBackgroundColor = target.getAttribute("data-blend-title-bg");
+                //}
+                //if (target.hasAttribute("data-blend-title-fg")) {
+                //    options.titleForegroundColor = target.getAttribute("data-blend-title-fg");
+                //}
+            }
+            //log("openInLayer");
+            openInLayer(options);
         }
+    }
+
+    //function setupLayerOptions(e) {
+    //    //data-am-widget="header"
+    //}
+
+    var anchors;
+
+    function setupPreloadLayers() {
+        var index;
+        var count;
+        var element;
+        var urls = [];
+        var selector = meta.get(PRELOAD_SELECTOR);
+
+        //log("[" + selector + "]", "[.am-navbar a]");
+        //log(selector === ".am-navbar a");
+        //log(encodeURIComponent(selector));
+
+        anchors = document.getElementsByTagName("A");
+
+        count = anchors.length;
+        //log("setupPreloadLayers:", count);
+        for (index = 0; index < count; index++) {
+            element = anchors[index];
+            if (!element || !element.hasAttribute("href")) {
+                continue;
+            }
+            if (isPreloadLayer(element)) {
+                urls.push(element.href);
+            }
+        }
+
+        Blend.ui.fire("cache", "0", {
+            urls: urls
+        });
     }
 
     var inited = false;
@@ -2649,7 +2763,12 @@ define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function
             return;
         }
         inited = true;
+
+        document.addEventListener("blendready", setupPreloadLayers, false);
+        //document.addEventListener("blendready", setupLayerOptions, false);
         document.addEventListener("click", layerTriggerHandler, false);
+        //$(document).on("tap", layerTapHandler);
+        log(Blend.ui.getLayerId(), "inited");
     }
 
     return {
@@ -2657,9 +2776,57 @@ define('src/boost/layerTrigger',["src/boost/sizzle", "src/boost/meta"], function
     };
 });
 
+window.onerror = function (msg, url, line) {
+    alert("blend.js:\n" +
+        "\terror:" + msg + "\n" +
+        "\turl:" + url + "\n" +
+        "\tline:" + line
+    );
+};
+//require(["src/boost/layerTrigger", "src/boost/layerGroup"], function (layerTrigger, layerGroup) {
 require(["src/boost/layerTrigger"], function (layerTrigger) {
     layerTrigger.init();
 }, null, true);
+
+
+//$(function () {
+//TODO title 时间
+document.addEventListener("blendready", function () {
+    return;
+    var $headers = $('[data-am-widget="header"]');
+    var $titles = $('.am-header-title', $headers);
+    if (!$titles.length) return;
+    var layerId = lc_bridge.currentLayerId();
+    var title = $.trim($titles.text());
+    //alert(layerId + ":\"" + title + "\"");
+    lc_bridge.layerSetHeader(layerId, JSON.stringify({
+        'titleString': title,
+        'titleBackgroundColor': "#ffffff",
+        'titleForegroundColor': "#ff6600"
+    }));
+    //return apiFn('currentLayerId', arguments);
+    //alert($titles.html());
+    //lc_bridge.layerSetHeader();
+    //layer.setHeader = function (layerId, options) {
+
+    //layerId = layerId || layer.getCurrentId();
+    //return apiFn('layerSetHeader', [
+    //    layerId,
+    //    JSON.stringify(options)
+    //]);
+    //};
+});
+//})
+
+//document.addEventListener("layerShow", function (e) {
+//    //console.log("layerShow:" + e.data);
+//    alert("layerShow:" + e.data);
+//}, false);
+
+
+//document.addEventListener("layerLoadFinish", function (e) {
+//    alert("layerLoadFinish:" + e.data);
+//}, false);
 
 define("src/boost/main", function(){});
 
