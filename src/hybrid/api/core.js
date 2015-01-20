@@ -1,11 +1,11 @@
 /**
-* @file core.js
-* @path hybrid/api/core.js
-* @desc native核心接口api;
-* @author clouda-team(https://github.com/clouda-team)
-*/
+ * @file core.js
+ * @path hybrid/api/core.js
+ * @desc native核心接口api;
+ * @author clouda-team(https://github.com/clouda-team)
+ */
 define(
-    function(require) {
+    function (require) {
 
         /**
          * @class blend.api.core
@@ -25,29 +25,42 @@ define(
         /**
          * 移除启动画面
          */
-        core.removeSplashScreen = function() {
+        core.removeSplashScreen = function () {
             apiFn('removeSplashScreen', arguments);
         };
 
         /**
          * 退出app应用
          */
-        core.exitApp = function() {
+        core.exitApp = function () {
             apiFn('exitApp', arguments);
         };
 
         /**
          * 启动app应用
          */
-        core.launchApp = function() {
+        core.launchApp = function () {
             apiFn('launchLightApp', arguments);
+        };
+
+        /**
+         * 得到环境变量
+         */
+        core.getEnv = function () {
+            var envStr;
+            var env = null;
+            try {
+                envStr = apiFn("getEnv", arguments);
+                env = JSON.parse(envStr);
+            } catch (e) {}
+            return env;
         };
 
         /**
          * 显示/ 隐藏键盘
          * @param {boolean} boolShow 显示 or 隐藏
          */
-        core.keyboard = function(boolShow) {
+        core.keyboard = function (boolShow) {
             if (!keyboard) {
                 apiFn('addComponent', [
                     'KEYBOARD',

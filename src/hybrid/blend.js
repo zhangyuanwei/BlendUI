@@ -128,6 +128,7 @@ define(
             'layerBack': runtime.layer.back,
             'layerStopLoading': runtime.layer.stopLoading,
             'getLayerId': runtime.layer.getCurrentId,
+            'getConfig': runtime.layer.getConfig,
             'layerSetPullRefresh': runtime.layer.setPullRefresh
         });
 

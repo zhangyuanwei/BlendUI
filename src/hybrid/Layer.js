@@ -7,33 +7,6 @@
  */
 define(
     function (require) {
-        var navBar = {
-            items: [{
-                title: "百度",
-                icon: "百度图标",
-                url: "http://www.baidu.com"
-            }, {
-                title: "谷歌",
-                icon: "谷歌图标",
-                url: "http://www.google.com"
-            }, {
-                title: "新浪",
-                icon: "新浪图标",
-                url: "http://www.sina.com",
-                'backgroundColor': "#ff6600",
-                'foregroundColor': "#ffffff"
-            }, {
-                title: "QQ",
-                icon: "QQ图标",
-                url: "http://www.qq.com"
-            }, {
-                title: "淘宝",
-                icon: "淘宝图标",
-                url: "http://www.taobao.com"
-            }],
-            'backgroundColor': "#ffffff",
-            'foregroundColor': "#000000"
-        };
         var blend = require('./blend');
         var lib = require('../common/lib');
         var runtime = require('./runtime');
@@ -222,18 +195,6 @@ define(
                     me.url = event.url;
                     me.changeUrl && me.changeUrl.call(me, event, me.url);
                 }
-                //layerApi.setNavbar(me.id, navBar);
-                //layer.setNavbar = function (layerId, options) {
-                //layerApi.setHeader(me.id, {
-                //    'titleString': "测试title",
-                //    'titleBackgroundColor': "#000000",
-                //    'titleForegroundColor': "#ffffff"
-                //});
-                //alert("event.appURL:\n\t" + event.appURL);
-                //alert("layerApi.getConfig:\n\t" + JSON.stringify(layerApi.getConfig(me.id)));
-                //layer.setHeader = function (layerId, options) {
-                //layerSetHome({"backgroundColorxxx": "FFFFFF"})
-                // console.info('Time layerLoadFinish:' + (new Date() - __time));
                 me.onload && me.onload.apply(me, arguments);
             }, me.id, me);
 
@@ -263,34 +224,6 @@ define(
             var fcolor = Math.floor(0xFFFFFF * Math.random());
             var bcolor = 0xFFFFFF ^ fcolor;
             layerApi.prepare(me.id, {
-                'tabBar': me.navbar ? navBar : undefined,
-                'header': {
-                    //'titleBackgroundColor': me.titleBackgroundColor,
-                    //'titleForegroundColor': me.titleForegroundColor,
-                    //'titleString': "titleString",
-                    'title': me.titleString,
-                    //'backgroundColor': "#ffffff",
-                    //'foregroundColor': "#000000",
-                    'backgroundColor': "#" + (bcolor + 0x1000000).toString(16).substr(1),
-                    'foregroundColor': "#" + (fcolor + 0x1000000).toString(16).substr(1),
-                    'minHeight': me.id === "__id_1" ? undefined : "20",
-                    'left': [{
-                        icon: "f015",
-                        text: "text",
-                        'backgroundColor': "#ffffff",
-                        'foregroundColor': "#000000",
-                        //action: "gourl(showLayer)|event()"
-                        action: "event({\"a\":\"b\"})"
-                    }],
-                    'right': [{
-                        icon: "f015",
-                        text: "text",
-                        'backgroundColor': "#ffffff",
-                        'foregroundColor': "#000000",
-                        //action: "gourl(showLayer)|event({\"a\":\"b\"})"
-                        action: "event({\"a\":\"b\"})"
-                    }]
-                },
                 'parent': me.parent,
                 'url': me.url,
                 'dom': me.dom,
@@ -471,8 +404,8 @@ define(
          * @parms {boolean} [options.opacity] 侧边栏是否透明;
          * @parms {number} options.width 侧边栏宽度
          */
-        Layer.addSidebar = function(layerId, options){
-            if(!options){
+        Layer.addSidebar = function (layerId, options) {
+            if (!options) {
                 options = layerId;
                 layerId = layerApi.getCurrentId();
             }
@@ -481,20 +414,20 @@ define(
         };
 
         // 显示layer上的侧边栏
-        Layer.showSidebar = function(layerId){
-            layerId = layerId||layerApi.getCurrentId();
+        Layer.showSidebar = function (layerId) {
+            layerId = layerId || layerApi.getCurrentId();
             layerApi.showSlider(layerId);
         };
 
         // 隐藏layer上的侧边栏
-        Layer.hideSidebar = function(layerId){
-            layerId = layerId||layerApi.getCurrentId();
+        Layer.hideSidebar = function (layerId) {
+            layerId = layerId || layerApi.getCurrentId();
             layerApi.hideSlider(layerId);
         };
 
         // 隐藏layer上的侧边栏
-        Layer.destorySidebar = function(layerId){
-            layerId = layerId||layerApi.getCurrentId();
+        Layer.destorySidebar = function (layerId) {
+            layerId = layerId || layerApi.getCurrentId();
             layerApi.destroySlider(layerId, options);
         };
 

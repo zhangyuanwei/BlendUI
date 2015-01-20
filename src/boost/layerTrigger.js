@@ -1,5 +1,4 @@
 define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
-    //define(["src/boost/zepto", "src/boost/meta"], function ($, meta) {
     "use strict";
     var LAYER_SELECTOR = "blend-layer-selector";
     var BACK_SELECTOR = "blend-back-selector";
@@ -9,10 +8,12 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
     var BACK_CLASS = "blend-back";
     var PRELOAD_CLASS = "blend-preload";
 
+    var BACKGROUND_PAGE_ID = "__id_blend_background_page__";
+
     function log() {
         var args = [].join.call(arguments, " ");
-        //console.log("##[" + new Date() + "] Clouda: " + args + " ##");
-        Blend.ui.fire("log", 0, args);
+        console.log("##[" + new Date() + "] Clouda: " + args + " ##");
+        Blend.ui.fire("log", BACKGROUND_PAGE_ID, args);
     }
 
     function findParentByTagName(element, tagName) {
@@ -34,12 +35,12 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
     }
 
     function openInLayer(options) {
-        Blend.ui.fire("open", "0", options);
+        Blend.ui.fire("open", BACKGROUND_PAGE_ID, options);
     }
 
     function layerBack() {
         //TODO 判断页面 history ???
-        Blend.ui.fire("back", "0");
+        Blend.ui.fire("back", BACKGROUND_PAGE_ID);
     }
 
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
@@ -76,7 +77,7 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
         return false;
     }
 
-    function isPreloadLayer(element) {
+    function isPreloadLink(element) {
         var selector = meta.get(PRELOAD_SELECTOR);
         if (hasClass(element, PRELOAD_CLASS) || (selector && Sizzle.matchesSelector(element, selector))) {
             //if (hasClass(element, PRELOAD_CLASS) || (selector && $(element).is(selector))) {
@@ -146,20 +147,20 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
                 preload: false
             };
 
-            if (isPreloadLayer(target)) {
-                //log("isPreloadLayer");
+            if (isPreloadLink(target)) {
+                //log("isPreloadLink");
                 options.preload = true;
             }
 
-            if (target.hasAttribute("data-blend-title")) {
-                options.titleString = target.getAttribute("data-blend-title");
-                //if (target.hasAttribute("data-blend-title-bg")) {
-                //    options.titleBackgroundColor = target.getAttribute("data-blend-title-bg");
-                //}
-                //if (target.hasAttribute("data-blend-title-fg")) {
-                //    options.titleForegroundColor = target.getAttribute("data-blend-title-fg");
-                //}
-            }
+            //if (target.hasAttribute("data-blend-title")) {
+            //    options.titleString = target.getAttribute("data-blend-title");
+            //    //if (target.hasAttribute("data-blend-title-bg")) {
+            //    //    options.titleBackgroundColor = target.getAttribute("data-blend-title-bg");
+            //    //}
+            //    //if (target.hasAttribute("data-blend-title-fg")) {
+            //    //    options.titleForegroundColor = target.getAttribute("data-blend-title-fg");
+            //    //}
+            //}
             //log("openInLayer");
             openInLayer(options);
         }
@@ -191,12 +192,12 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
             if (!element || !element.hasAttribute("href")) {
                 continue;
             }
-            if (isPreloadLayer(element)) {
+            if (isPreloadLink(element)) {
                 urls.push(element.href);
             }
         }
 
-        Blend.ui.fire("cache", "0", {
+        Blend.ui.fire("cache", BACKGROUND_PAGE_ID, {
             urls: urls
         });
     }
@@ -204,15 +205,20 @@ define(["src/boost/sizzle", "src/boost/meta"], function (Sizzle, meta) {
     var inited = false;
 
     function init() {
+        var config;
         if (inited) {
             return;
         }
         inited = true;
+        config = Blend.ui.getConfig();
 
-        document.addEventListener("blendready", setupPreloadLayers, false);
-        //document.addEventListener("blendready", setupLayerOptions, false);
+        //alert(JSON.stringify(config));
+        //只有当前页面不是预加载的页面时，才预加载页面
+        if (!config.isPreloadLayer) {
+            document.addEventListener("blendready", setupPreloadLayers, false);
+        }
+
         document.addEventListener("click", layerTriggerHandler, false);
-        //$(document).on("tap", layerTapHandler);
         log(Blend.ui.getLayerId(), "inited");
     }
 

@@ -11,27 +11,37 @@ document.addEventListener("blendready", function () {
     "use strict";
 
     function log() {
-        return;
+        //return;
         var args = [].join.call(arguments, " ");
         console.log("##[" + (+new Date()) + "] Clouda: " + args + " ##");
+        //alert("Clouda: " + args + " ##");
     }
 
     var id = 0;
     var ID_PREFIX = "__id_";
-    var dataMap = {};
 
-    function getId(data) {
+    function getId() {
         var newId = ID_PREFIX + ++id;
-        dataMap[newId] = data;
         return newId;
     }
 
-    function getData(id) {
-        return dataMap.hasOwnProperty(id) ? dataMap[id] : undefined;
-    }
-
-
     var cacheMap = {};
+
+    function cache(url, id) {
+        var layer;
+        if (!cacheMap.hasOwnProperty(url)) {
+            layer = new Blend.ui.Layer({
+                id: id || getId(),
+                url: url,
+                fx: "none",
+                duration: 0,
+                active: false
+            });
+            cacheMap[url] = layer;
+            //layer.paint();
+        }
+        return cacheMap[url];
+    }
 
     //缓存页面
     Blend.ui.on("cache", function (e) {
@@ -49,18 +59,7 @@ document.addEventListener("blendready", function () {
         count = urls.length;
         for (index = 0; index < count; index++) {
             url = urls[index];
-            if (!cacheMap.hasOwnProperty(url)) {
-                layer = new Blend.ui.Layer({
-                    id: getId(),
-                    url: url,
-                    active: false,
-                    duration: 0,
-                    fx: "none",
-                    navbar: false
-                });
-                cacheMap[url] = layer;
-                layer.paint();
-            }
+            cache(url);
         }
     });
 
@@ -114,18 +113,10 @@ document.addEventListener("blendready", function () {
         return elm.href;
     }
 
-    (new Blend.ui.Layer({
-        id: "1",
-        //url: getURL("index.html?" + +new Date),
-        url: getURL("http://taika.la:53769/?" + +new Date),
-        //url: "http://zhangyuanwei.me:8080/~zhangyuanwei/boost/background.html?" + +new Date,
-        duration:  300,
-        active: true,
-        navbar: true
-    }));
-    document.addEventListener("layerShow", function (e) {
-        //console.log("layerShow:" + e.data);
-        //alert("layerShow:" + e.data);
-    }, false);
+    var env = Blend.ui.getEnv();
+    var APP_URL = env.APP_URL;
+    //APP_URL = "testcase.html?" + +new Date();
+    var indexLayer = cache(getURL(APP_URL), "0");
+    indexLayer.in();
 }, false);
 //});
